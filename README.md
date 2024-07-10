@@ -26,7 +26,7 @@
 1. clonar o descargar repositorio:
 
    ```
-
+   https://github.com/DiegoRMV/api-rest-vet.git
    ```
 
 2. Instalar Paquetes:
