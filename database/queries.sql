@@ -1,0 +1,116 @@
+DROP TABLE IF EXISTS RESERVATIONS;
+DROP TABLE IF EXISTS PETS;
+DROP TABLE IF EXISTS USERS;
+DROP TABLE IF EXISTS VETS;
+DROP TABLE IF EXISTS ROLES;
+DROP TABLE IF EXISTS PRODUCTS;
+DROP TABLE IF EXISTS CARTS;
+
+CREATE TABLE ROLES (
+    RID SERIAL PRIMARY KEY,
+    NAME VARCHAR(50) NOT NULL UNIQUE CHECK (NAME IN ('ADMIN', 'CLIENT'))
+);
+
+CREATE TABLE PRODUCTS (
+	PID SERIAL PRIMARY KEY,
+    NAME VARCHAR(120) NOT NULL,
+    PRICE REAL NOT NULL,
+    CATEGORY VARCHAR(50) NOT NULL,
+    DESCRIPTION TEXT NOT NULL,
+    IMAGES TEXT[] NOT NULL
+);
+
+CREATE TABLE VETS (
+	VID SERIAL PRIMARY KEY,
+	EMAIL VARCHAR(60) NOT NULL UNIQUE,
+    NAME VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE USERS (
+	UID SERIAL PRIMARY KEY,
+	EMAIL VARCHAR(60) NOT NULL UNIQUE,
+	PASSWORD TEXT NOT NULL,
+	USERNAME VARCHAR(60) NOT NULL,
+    ROLE_ID INT NOT NULL DEFAULT 2,
+    FOREIGN KEY (ROLE_ID) REFERENCES ROLES(RID)
+);
+
+CREATE TABLE PETS (
+    PID SERIAL PRIMARY KEY,
+    NAME VARCHAR(50) NOT NULL,
+    SPECIES VARCHAR(50) NOT NULL,
+    BREED VARCHAR(50) NOT NULL,
+    OWNER INT NOT NULL,
+    FOREIGN KEY (OWNER) REFERENCES USERS(UID)
+);
+
+CREATE TABLE CARTS (
+    CID SERIAL PRIMARY KEY,
+    IDUSER INT NOT NULL,
+    IDPRODUCT INT NOT NULL,
+    AMOUNT INT NOT NULL,
+    FOREIGN KEY (IDUSER) REFERENCES USERS(UID),
+    FOREIGN KEY (IDPRODUCT) REFERENCES PRODUCTS(PID)
+);
+
+CREATE TABLE RESERVATIONS (
+    RID SERIAL PRIMARY KEY,
+    PET INT NOT NULL,
+    VET INT NOT NULL,
+    RESERVATION_DATE DATE NOT NULL,
+    DESCRIPTION TEXT,
+    FOREIGN KEY (PET) REFERENCES PETS(PID),
+    FOREIGN KEY (VET) REFERENCES VETS(VID)
+);
+
+INSERT INTO ROLES (NAME) VALUES ('ADMIN');
+INSERT INTO ROLES (NAME) VALUES ('CLIENT');
+
+SELECT * FROM USERS;
+
+
+
+-- El role prederminado es client (role 2)
+-- Crear primero usuario admin por login luego...
+
+-- ACTUALIZA 'admin@admin.com' a ROLE ADMIN
+UPDATE USERS
+SET ROLE_ID = 1
+WHERE EMAIL = 'admin@admin.com';
+
+-- Muestra todos los usuarios
+SELECT * FROM USERS;
+
+--Inserta 3 veterinarios
+INSERT INTO VETS (NAME, EMAIL) VALUES
+('vet1', 'vet1@gmal.com'),
+('vet2', 'vet2@gmal.com'),
+('vet3', 'vet3@gmal.com');
+
+-- Muestra todos los veterinarios
+SELECT * FROM VETS;
+
+-- Muestra todos los productos
+SELECT * FROM PRODUCTS;
+
+
+-- verificar que tengas un usuario client y según su uid creamos pets
+-- CREA 10 PETS CON OWNER 1 (siempre y cuando exista el owner 1 )
+-- En este caso el owner 1 es el admin
+INSERT INTO PETS (NAME, SPECIES, BREED, OWNER) VALUES
+('Firulais', 'Perro', 'Labrador', 1),
+('Mishi', 'Gato', 'Siames', 1),
+('Milo', 'Perro', 'Chihuahua', 1),
+('Molly', 'Perro', 'Pug', 1),
+('Max', 'Perro', 'Pastor Aleman', 1),
+('Luna', 'Perro', 'Labrador', 1),
+('Bella', 'Perro', 'Labrador', 1),
+('Daisy', 'Perro', 'Labrador', 1),
+('Lucy', 'Perro', 'Labrador', 1),
+('Cooper', 'Perro', 'Labrador', 1);
+
+-- Muestra todos los pets
+SELECT * FROM PETS;
+
+-- Limpia todas las tablas pero no reinicia el conteo de los ID
+TRUNCATE RESERVATIONS, PETS, USERS, VETS, ROLES, PRODUCTS, CARTS CASCADE;
